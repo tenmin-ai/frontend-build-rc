@@ -2,6 +2,7 @@ class PCMRecorder extends AudioWorkletProcessor {
   constructor() {
     super();
     this.BUFFER_SIZE = 3200;
+    // this.BUFFER_SIZE = 512;
     this.int16Buffer = new Int16Array(this.BUFFER_SIZE);
     this.bufferOffset = 0;
     console.log("PCMRecorder initialized");
@@ -13,10 +14,20 @@ class PCMRecorder extends AudioWorkletProcessor {
       console.warn("No input data:");
       return true;
     }
+    if (inputs.length > 1) {
+      console.warn(
+        "More than one input source:",
+        inputs.length,
+        outputs.length,
+      );
+    }
 
     const channelData = input[0];
+    // if (input.length != 1) {
+    //   console.warn("More than one channel:", input.length);
+    // }
     if (!channelData) {
-      // console.warn("No channel data");
+      // console.warn("No channel data", channelData);
       return true;
     }
 
@@ -33,6 +44,7 @@ class PCMRecorder extends AudioWorkletProcessor {
         this.port.postMessage(this.int16Buffer.buffer, [
           this.int16Buffer.buffer,
         ]);
+        // console.log("Data sent to main thread");
 
         // Reallocate a new buffer since we've transferred the old one
         this.int16Buffer = new Int16Array(this.BUFFER_SIZE);
